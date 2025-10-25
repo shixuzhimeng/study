@@ -21,7 +21,7 @@
 //     return 0;
 // }
 
-
+//计数排序
 #include <stdio.h>
 
 int a[100] = { 0 };
@@ -38,10 +38,13 @@ int main()
     {
         a[arr2[i]]++;
     }
+
+
     for(int i = 0; i < 100; i++)
     {
         if(a[i] != 0)
             printf("%d ", i);
     }
+
     return 0;
 }
