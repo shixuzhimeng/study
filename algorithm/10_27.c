@@ -6,7 +6,7 @@
 //     }
 //     return a;
 // }
-//二分查找
+// 二分查找
 // #include <stdio.h>
 // int binary_search(int arr[],int k,int sz)
 // {
@@ -52,21 +52,27 @@
 
 //函数递归
 // #include <stdio.h>
-// void print(unsigned int n)
-// {
-//     if(n>9)
-//     {
-//         print(n/10);
-//     }
-//     printf("%d ",n%10);
 
+// int my_strlen(char* str)
+// {
+//     if(*str != '\0')
+//     {
+//         return 1 +  my_strlen(str + 1);
+
+//     }
+//     else 
+//         return 0;
 // }
 // int main()
 // {
-//     unsigned int num = 0;
-//     scanf("%u",&num);
-//     print(num);
+//     char arr[] ={'a' , 'b' , 'c','\0'};
+//     int len = my_strlen(arr);
+//     printf("%d\n",len);
+//     return 0;
 // }
+ 
+ 
+
 //模拟式现strlen
 // #include <stdio.h>
 // int my_strlen(char* str)//参数部分写成指针
@@ -106,3 +112,17 @@
 //     printf("%d\n",len);
 //     return 0;
 // }
+#include <stdio.h>
+int main()
+{
+    int x = 0;
+    scanf("%d",&x);
+    int arr[100000] = {0};
+    int i = 0;
+    while(x>0)
+    {
+        arr[i] = x%2;
+        x /= 2;
+        i++;
+    }
+}
