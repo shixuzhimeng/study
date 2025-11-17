@@ -49,9 +49,15 @@ char Tolower(char a)
 int main()
 {
     char arr1[15] = { 0 };
-    scanf("%s\n",arr1);
+    fgets(arr1, sizeof(arr1), stdin);
     char arr2[1000010] = { 0 };
+    arr1[strlen(arr1) - 1] = '\0';
+
     fgets(arr2 , sizeof(arr2) , stdin);
+    arr2[strlen(arr2) - 1] = '\0';
+
+    printf("%s\n" ,arr1);
+    printf("%s\n" ,arr2);
 
     int c = 0;
     int count = 0;
