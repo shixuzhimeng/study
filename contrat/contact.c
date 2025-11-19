@@ -1,22 +1,87 @@
 #include "contact.h"
 
+//静态的版本
+// void InitContact(Contact* pc)
+// {
+//     assert(pc);
+//     pc->count = 0;
+//     memset(pc->date, 0 , sizeof(pc->date));
+// }
 
-void InitContact(Contact* pc)
+//动态的版本
+int InitContact(Contact* pc)
 {
     assert(pc);
-    pc->count = 0;
-    memset(pc->date, 0 , sizeof(pc->date));
+    pc -> count = 0;
+    pc -> date = (PeoInfo*)calloc(DEFAULT_SZ,sizeof(PeoInfo));
+    if(pc->date == NULL)
+    {
+        printf("InitContact::%s\n",strerror(errno));
+        return 1;
+    }
+    pc -> capacity = DEFAULT_SZ;
+    return 0;
 }
 
 
+void DestroyContact(Contact* pc)
+{
+    assert(pc);
+    free(pc->date);
+    pc->date = NULL;
+}
+
+
+//静态的版本
+// void AddContact(Contact* pc)
+// {
+//     assert(pc);
+//     if(pc->count == MAX)
+//     {
+//         printf("通讯录满了\n");
+//         return;
+//     }
+//     printf("请输入姓名:>");
+//     scanf("%s",pc->date[pc->count].name);
+//     printf("请输入年龄:>");
+//     scanf("%d",&pc->date[pc->count].age);
+//     printf("请输入性别:>");
+//     scanf("%s",pc->date[pc->count].sex);
+//     printf("请输入电话:>");
+//     scanf("%s",pc->date[pc->count].tele);
+//     printf("请输入地址:>");
+//     scanf("%s",pc->date[pc->count].addr);
+
+
+//     pc->count++;
+//     printf("增加成功\n");
+// }
+
+void CheckCapacity(Contact* pc)
+{
+    if(pc -> count == pc -> capacity)
+    {
+        PeoInfo* ptr = (PeoInfo*)realloc(pc ->date, (pc->capacity + INT_SZ)*sizeof(PeoInfo));
+        if(ptr == NULL)
+        {
+            printf("AddContact::%s\n",strerror(errno));
+            return ;
+        }
+        else
+        {
+            pc -> date = ptr;
+            pc -> capacity += INT_SZ;
+            printf("增容成功\n");
+        }
+    }
+}
+
+//动态的版本
 void AddContact(Contact* pc)
 {
     assert(pc);
-    if(pc->count == MAX)
-    {
-        printf("通讯录满了\n");
-        return;
-    }
+    //增容
+    CheckCapacity(pc);
     printf("请输入姓名:>");
     scanf("%s",pc->date[pc->count].name);
     printf("请输入年龄:>");
@@ -106,7 +171,6 @@ void SearchContact(Contact* pc)
     printf("%-20s\t%-5d\t%-5s\t%-12s\t%-30s\n",pc->date[pos].name,pc->date[pos].age,pc->date[pos].sex,pc->date[pos].tele,pc->date[pos].addr);
 }
 
-
 void ModifyContact(Contact* pc)
 {
     assert(pc);
@@ -135,13 +199,10 @@ void ModifyContact(Contact* pc)
     printf("修改成功\n");
 }
 
-
-
 int compare(const void* e1, const void* e2)
 {
     return strcmp(((PeoInfo *)e1)->name, ((PeoInfo *)e2)->name);
 }
-
 
 void SortContact(Contact* pc)
 {
