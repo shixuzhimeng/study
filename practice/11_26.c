@@ -77,18 +77,18 @@
 // #endif
 
 
-#include <stdio.h>
-#include <string.h>
-int main()
-{
-    FILE *fp = fopen("test2.txt","wb");
+// #include <stdio.h>
+// #include <string.h>
+// int main()
+// {
+//     FILE *fp = fopen("test2.txt","wb");
     
-    char arr[1000010] = "哇哈哈wahaha";
-    printf("%ld\n", strlen(arr));
-    printf("%ld\n", sizeof(arr));
+//     char arr[1000010] = "哇哈哈wahaha";
+//     printf("%ld\n", strlen(arr));
+//     printf("%ld\n", sizeof(arr));
 
-    fwrite(arr, strlen(arr), 1, fp);
+//     fwrite(arr, strlen(arr), 1, fp);
     
-    fclose(fp);
-    return 0;
-}
+//     fclose(fp);
+//     return 0;
+// }
