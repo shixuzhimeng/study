@@ -42,7 +42,7 @@ int max_name_len = 0;
 const char *get_file_color(const char *path) 
 {
     struct stat file_stat;
-    if(stat(path, &file_stat) == -1)
+    if(lstat(path, &file_stat) == -1)
     {
         return COLOR_DEFAULT;
     }
@@ -67,15 +67,19 @@ const char *get_file_color(const char *path)
 void get_permission_str(mode_t mode, char perm_str[11])
 {
     perm_str[0] = S_ISDIR(mode) ? 'd' : S_ISLNK(mode) ? 'l' : '-';
+
     perm_str[1] = (mode & S_IRUSR) ? 'r' : '-';
     perm_str[2] = (mode & S_IWUSR) ? 'w' : '-';
     perm_str[3] = (mode & S_IXUSR) ? 'x' : '-';
+
     perm_str[4] = (mode & S_IRGRP) ? 'r' : '-';
     perm_str[5] = (mode & S_IWGRP) ? 'w' : '-';
     perm_str[6] = (mode & S_IXGRP) ? 'x' : '-';
+
     perm_str[7] = (mode & S_IROTH) ? 'r' : '-';
     perm_str[8] = (mode & S_IWOTH) ? 'w' : '-';
     perm_str[9] = (mode & S_IXOTH) ? 'x' : '-';
+
     perm_str[10] = '\0';
 }
 
@@ -123,7 +127,7 @@ int cmp_time(const void* a,const void* b)
     return 0;
 }
 
-void reverse(File* files, int count)
+void turn(File* files, int count)
 {
     for(int i = 0; i < count / 2; i++)
     {
@@ -142,7 +146,7 @@ void free_file(File* files, int count)
     free(files);
 }
 
-void process_dir(const char *dir_path, int is_recursive, int is_first);
+void process_dir(const char *dir_path, int is_R, int is_first);
 
 void print(File* files, int count , const char* dir_path)
 {
@@ -157,10 +161,10 @@ void print(File* files, int count , const char* dir_path)
     }
     
     int printed = 0;
-    int prefix_len = 0;
+    int pre_len = 0;
     
-    if(choose.i_flag) prefix_len += 8;
-    if(choose.s_flag) prefix_len += 5;
+    if(choose.i_flag) pre_len += 8;
+    if(choose.s_flag) pre_len += 5;
     
     for(int i = 0; i < count; i++)
     {
@@ -176,7 +180,7 @@ void print(File* files, int count , const char* dir_path)
             printf("%4ld ", fi->blocks / 2);
         }
         
-        if(choose.l_flag)
+        if(choose.l_flag) 
         {
             char perm_str[20];
             get_permission_str(fi->stat.st_mode,perm_str);
@@ -203,22 +207,29 @@ void print(File* files, int count , const char* dir_path)
             continue;
         }
         
-        printf("%s%-*s%s", fi->color, max_name_len + 2 - prefix_len, fi->name, COLOR_RESET);
-        printed++;
-        
-        if(printed % 5 == 0 || i == count - 1)
+        if(choose.R_flag == 1)
         {
-            printf("\n");
-            printed = 0;
+            printf("%s %s\n",fi->color ,fi->name);
         }
         else
         {
-            printf("  ");
+            printf("%s%-*s%s", fi->color, max_name_len + 2 - pre_len, fi->name, COLOR_RESET);
+            printed++;
+            
+            if(printed % 5 == 0 || i == count - 1)
+            {
+                printf("\n");
+                printed = 0;
+            }
+            else
+            {
+                printf("  ");
+            }
         }
     }
 }
 
-void process_dir(const char *dir_path, int is_recursive, int is_first)
+void process_dir(const char *dir_path, int is_R, int is_first)
 {
     DIR *dir;
     struct dirent *entry;
@@ -242,7 +253,15 @@ void process_dir(const char *dir_path, int is_recursive, int is_first)
         }
         
         char full_path[1024];
-        snprintf(full_path, sizeof(full_path), "%s/%s", dir_path, entry->d_name);
+        int dir_len1 = strlen(dir_path);
+        if(dir_len1 > 0 && dir_path[dir_len1 - 1] == '/')
+        {
+            snprintf(full_path, sizeof(full_path), "%s%s", dir_path, entry->d_name);  
+        }
+        else
+        {
+            snprintf(full_path, sizeof(full_path), "%s/%s", dir_path, entry->d_name);
+        }
 
         if(lstat(full_path, &statbuf) == -1)
         {
@@ -294,7 +313,7 @@ void process_dir(const char *dir_path, int is_recursive, int is_first)
 
     if(choose.r_flag)
     {
-        reverse(files, count);
+        turn(files, count);
     }
     
     if(!is_first || count > 0)
@@ -306,17 +325,23 @@ void process_dir(const char *dir_path, int is_recursive, int is_first)
         print(files, count, dir_path);
     }
 
-    if(is_recursive)
+    if(is_R)
     {
         for(int i = 0; i < count; i++)
         {
-            if(S_ISDIR(files[i].stat.st_mode) && 
-               strcmp(files[i].name, ".") != 0 && 
-               strcmp(files[i].name, "..") != 0)
+            if(S_ISDIR(files[i].stat.st_mode) && strcmp(files[i].name, ".") != 0 && strcmp(files[i].name, "..") != 0)
             {
                 char subdir_path[1024];
-                snprintf(subdir_path, sizeof(subdir_path), "%s/%s", dir_path, files[i].name);
-                process_dir(subdir_path, 1, 0);
+                int dir_len2 = strlen(dir_path);
+                if(dir_len2 > 0 && dir_path[dir_len2 - 1] == '/')
+                {
+                    snprintf(subdir_path, sizeof(subdir_path), "%s%s", dir_path, files[i].name);
+                }
+                else
+                {
+                    snprintf(subdir_path, sizeof(subdir_path), "%s/%s", dir_path, files[i].name);
+                }
+                    process_dir(subdir_path, 1, 0);
             }
         }
     }
