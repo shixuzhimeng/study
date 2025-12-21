@@ -84,3 +84,28 @@
 // }
 
 
+// #include <stdio.h>
+
+// int main() {
+//     int n;
+//     scanf("%d", &n);
+    
+//     int max_value;
+//     int max_index = 0;
+    
+//     scanf("%d", &max_value);
+    
+//     for(int i = 1; i < n; i++) {
+//         int num;
+//         scanf("%d", &num);
+        
+//         if(num > max_value) {
+//             max_value = num;
+//             max_index = i;
+//         }
+//     }
+    
+//     printf("%d %d\n", max_value, max_index);
+    
+//     return 0;
+// }
